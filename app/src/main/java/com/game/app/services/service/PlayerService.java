@@ -8,4 +8,7 @@ public interface PlayerService {
     public Player createPlayer(CreatePlayerRequest request);
 
     public String isPlayerDataValid(String email, String name);
+
+    public Player getPlayerById(String playerId);
+
 }

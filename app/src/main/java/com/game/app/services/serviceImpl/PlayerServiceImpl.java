@@ -50,6 +50,11 @@ public class PlayerServiceImpl implements PlayerService {
         return null;
     }
 
+    @Override
+    public Player getPlayerById(String playerId) {
+        return playerRepository.findById(playerId).orElse(null);
+    }
+
     public String isUserDataValid(String email, String password, String fname, String lname) {
         if (email == null  || email.length() < 3
                 || password == null || password.length() == 0

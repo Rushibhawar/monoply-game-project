@@ -33,4 +33,10 @@ public class Game {
 
     @Column(name = "winner_id")
     private String winnerId; // PlayerId of the winner (null until game ends)
+
+    @Column(name = "created_by_player_id")
+    private String createdByPlayerId; // PlayerId of the player who created the game
+
+    @Column(name = "is_active")
+    private boolean isActive;
 }

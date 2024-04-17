@@ -26,7 +26,7 @@ public class PlayerController {
     @Autowired
     PlayerRepository playerRepository;
 
-    Logger logger = LoggerFactory.getLogger(PlayerServiceImpl.class);
+    Logger logger = LoggerFactory.getLogger(PlayerController.class);
 
 
     @PostMapping("/create-player")

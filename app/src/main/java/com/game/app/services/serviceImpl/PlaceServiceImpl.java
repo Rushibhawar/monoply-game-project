@@ -48,7 +48,7 @@ public class PlaceServiceImpl implements PlaceService {
             throw new IllegalArgumentException("Place already exists.");
         }
 
-        int newPosition = placeRepository.countPlaces();
+        int newPosition = placeRepository.countPlaces() + 1;
 
         // Create and save the new place
         Place newPlace = Place.builder()

@@ -74,4 +74,10 @@ public class PlayerServiceImpl implements PlayerService {
     public Player savePlayer(Player player) {
         return playerRepository.save(player);
     }
+
+    @Override
+    public Player getWinnerDetailsById(String winnerId) {
+        return playerRepository.findById(winnerId).orElse(null);
+
+    }
 }

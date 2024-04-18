@@ -1,6 +1,7 @@
 package com.game.app.services.service;
 
 import com.game.app.dao.request.CreatePlayerRequest;
+import com.game.app.dao.request.PlaceRequest;
 import com.game.app.persistence.model.Player;
 
 public interface PlayerService {
@@ -12,4 +13,7 @@ public interface PlayerService {
     public Player getPlayerById(String playerId);
 
     public Player savePlayer(Player player);
+
+    public Player getWinnerDetailsById(String winnerId);
+
 }

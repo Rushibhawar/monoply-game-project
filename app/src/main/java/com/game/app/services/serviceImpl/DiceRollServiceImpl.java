@@ -41,50 +41,9 @@ public class DiceRollServiceImpl implements DiceRollService {
     Logger logger = LoggerFactory.getLogger(DiceRollServiceImpl.class);
 
 
-//    @Override
-//    public DiceRoll rollDice(String playerId) {
-//        // Generate random dice values (1-6 for each die)
-//        int dice1Value = rollDie();
-//        int dice2Value = rollDie();
-//
-//        int totalValue = dice1Value + dice2Value;
-//
-//        // Update player's current position based on the dice value
-//        Player currentPlayer = playerService.getPlayerById(playerId);
-//        int currentPosition = currentPlayer.getCurrentPosition();
-//        int newPosition = (currentPosition + totalValue) % 10; // Assuming 10 places in the game
-//
-//        // Check if the new position is an unowned place or owned by another player
-//        Place newPlace = placeService.getPlaceByPosition(newPosition);
-//        if (newPlace.getOwner() == null) {
-//            // Unowned place
-//            currentPlayer.setCurrentPosition(newPosition);
-//            playerService.savePlayer(currentPlayer);
-//        } else {
-//            // Place owned by another player
-//            // Implement logic for paying rent or other actions
-//        }
-//
-//        // Save the dice roll details
-//        DiceRoll diceRoll = new DiceRoll();
-//        diceRoll.setPlayer(currentPlayer);
-//        diceRoll.setDice1Value(dice1Value);
-//        diceRoll.setDice2Value(dice2Value);
-//        diceRoll.setTotalValue(totalValue);
-//        // Save diceRoll to database using DiceRollRepository or JPA EntityManager
-//
-//        return diceRoll;
-//    }
-//
-//    private int rollDie() {
-//        Random random = new Random();
-//        return random.nextInt(6) + 1; // Generate random value between 1 and 6
-//    }
-
-
     @Transactional
     @Override
-    public void rollDice(String gameId, String playerId) {
+    public Player rollDice(String gameId, String playerId) {
 
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new IllegalArgumentException("Game not found"));
         Player currentPlayer = game.getCurrentPlayer();
@@ -148,6 +107,69 @@ public class DiceRollServiceImpl implements DiceRollService {
         Game savedGame = gameRepository.save(game);
 
         logger.info("Saved Game after rolling the dice: {}",savedGame);
+
+        // Check for bankruptcy or highest cash balance winner
+        Player winner = checkForBankruptcy(savedGame);
+
+        // Check for winner at turn 50
+        if (savedGame.getTurnCount() >= 50 && winner == null) {
+            winner = determineWinnerAtTurn50(savedGame);
+        }
+
+        if (winner != null) {
+            declareWinner(savedGame, winner);
+        }
+
+        return winner;
+    }
+
+    @Override
+    public Player checkForBankruptcy(Game game) {
+        Player player1 = game.getPlayer1();
+        Player player2 = game.getPlayer2();
+
+        // Check if player 1 is bankrupt
+        if (player1.getCashBalance() <= 0) {
+            logger.info("Player {} is bankrupt.", player1.getPlayerName());
+            declareWinner(game, player2); // Declare player 2 as the winner
+            return player2;
+        }
+
+        // Check if player 2 is bankrupt
+        if (player2.getCashBalance() <= 0) {
+            logger.info("Player {} is bankrupt.", player2.getPlayerName());
+            declareWinner(game, player1); // Declare player 1 as the winner
+            return player1;
+        }
+
+        return null; // No bankruptcy, return null
+    }
+
+    @Override
+    public void declareWinner(Game game, Player winner) {
+        game.setActive(false); // Mark the game as inactive
+        game.setWinnerId(winner.getId()); // Set the winner ID in the game
+        gameRepository.save(game); // Save the updated game state
+
+        logger.info("Player {} is the winner!", winner.getPlayerName());
+
+        // Clear ownership of all places
+        placeService.clearOwnershipOfAllPlaces();
+    }
+
+    @Override
+    public Player determineWinnerAtTurn50(Game game) {
+        Player player1 = game.getPlayer1();
+        Player player2 = game.getPlayer2();
+
+        // Compare cash balances to determine the winner
+        if (player1.getCashBalance() > player2.getCashBalance()) {
+            return player1; // Player 1 has the highest cash balance
+        } else if (player2.getCashBalance() > player1.getCashBalance()) {
+            return player2; // Player 2 has the highest cash balance
+        } else {
+            return null; // It's a tie
+        }
     }
 
     private int rollDie() {

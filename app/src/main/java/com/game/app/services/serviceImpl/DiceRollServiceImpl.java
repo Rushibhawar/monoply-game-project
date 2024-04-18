@@ -155,6 +155,9 @@ public class DiceRollServiceImpl implements DiceRollService {
 
         // Clear ownership of all places
         placeService.clearOwnershipOfAllPlaces();
+
+        // Reset cash balance for all players in this game
+        resetCashBalanceForPlayers(game);
     }
 
     @Override
@@ -172,6 +175,19 @@ public class DiceRollServiceImpl implements DiceRollService {
         }
     }
 
+    @Transactional
+    private void resetCashBalanceForPlayers(Game game) {
+        Player player1 = game.getPlayer1();
+        Player player2 = game.getPlayer2();
+
+        // Reset cash balance to default value (e.g., 1000)
+        player1.setCashBalance(1000);
+        player2.setCashBalance(1000);
+
+        // Save updated player data
+        playerRepository.saveAll(List.of(player1, player2));
+
+    }
     private int rollDie() {
         return (int) (Math.random() * 6) + 1; // Simulating a 6-sided die roll
     }

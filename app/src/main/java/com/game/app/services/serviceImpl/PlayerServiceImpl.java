@@ -70,4 +70,8 @@ public class PlayerServiceImpl implements PlayerService {
 
         return null;
     }
+
+    public Player savePlayer(Player player) {
+        return playerRepository.save(player);
+    }
 }

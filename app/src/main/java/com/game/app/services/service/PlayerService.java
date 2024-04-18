@@ -11,4 +11,5 @@ public interface PlayerService {
 
     public Player getPlayerById(String playerId);
 
+    public Player savePlayer(Player player);
 }

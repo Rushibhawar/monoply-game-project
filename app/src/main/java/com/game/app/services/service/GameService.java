@@ -6,5 +6,6 @@ import com.game.app.persistence.model.Player;
 
 public interface GameService {
     public Game createGame(Player hostPlayer, Player player2);
+    public String getPlaceLanded(String gameId, String playerId);
 
 }

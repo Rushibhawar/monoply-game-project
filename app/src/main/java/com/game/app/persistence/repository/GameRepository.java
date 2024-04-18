@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface GameRepository extends JpaRepository<Game, String> {
     List<Game> findAllActiveGamesByPlayer1IdAndIsActiveTrue(String hostPlayerId);
+    List<Game> findAllByIsActiveTrue();
+
 }

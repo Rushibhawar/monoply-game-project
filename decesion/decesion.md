@@ -1,0 +1,50 @@
+# **Decisions and Design Patterns in the application**
+
+## **1. Design Patterns**
+
+### **a. Builder Pattern**
+
+- **Usage**: Implemented the Builder pattern for constructing objects like **`Game`** and **`Place`** entities.
+- **Benefit**: Simplifies object creation by allowing flexible construction steps and improving readability.
+
+### **b. Repository Pattern**
+
+- **Usage**: Utilized the Repository pattern with Spring Data JPA to manage data persistence and provide database access.
+- **Benefit**: Promotes separation of concerns by isolating data access logic, enabling easier testing and maintenance.
+
+### **c. Service Layer Pattern**
+
+- **Usage**: Implemented a Service layer to encapsulate business logic and coordinate operations between Controllers and Repositories.
+- **Benefit**: Enhances modularity, scalability, and reusability by centralizing business rules and operations.
+
+## **2. Architectural Decisions**
+
+### **a. Layered Architecture**
+
+- **Decision**: Adopted a layered architecture with Controller, Service, and Repository layers.
+- **Rationale**: Promotes separation of concerns, modularity, and easier maintenance by organizing components based on responsibilities.
+
+### **b. Dependency Injection (DI)**
+
+- **Decision**: Leveraged Spring Boot's dependency injection for managing component dependencies.
+- **Rationale**: Improves testability, flexibility, and promotes loose coupling between components.
+
+### **c. RESTful API Design**
+
+- **Decision**: Designed RESTful APIs for handling HTTP requests and responses.
+- **Rationale**: Ensures standardization, scalability, and interoperability of the application's API endpoints.
+
+### **d. Transactional Operations:**
+
+- **Decision**: Implemented transaction management for atomicity and consistency of database operations.
+- **Rationale**: Used Spring's **`@Transactional`** annotation to define transaction boundaries and ensure data integrity.
+
+### **e. Exception Handling:**
+
+- **Decision**: Implemented structured exception handling to manage errors gracefully.
+- **Rationale**: Used try-catch blocks and custom exception classes to handle different types of exceptions, providing meaningful error messages.
+
+### **f. DTO (Data Transfer Object) Pattern:**
+
+- **Decision**: Implemented DTOs to transfer data between layers and decouple the presentation layer from the domain model.
+- **Rationale**: Created separate DTO classes for request and response payloads, ensuring a clear separation of concerns.

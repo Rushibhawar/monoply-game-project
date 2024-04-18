@@ -12,4 +12,5 @@ public interface PlaceService {
     public Place addPlace(PlaceRequest request);
     public void clearOwnershipOfAllPlaces();
 
+
 }

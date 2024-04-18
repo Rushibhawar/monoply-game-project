@@ -53,7 +53,9 @@ public class GameController {
                         .body(new APIResponse<String>(
                                 false,
                                 "",
-                                "Host player or second player not found"));
+                                hostPlayer == null && player2 == null ?
+                                        "Host player and second player not found" :
+                                        (hostPlayer == null ? "Host" : "Second") + " player not found"));
             }
 
             if (!hostPlayer.isHost()) {
@@ -118,13 +120,24 @@ public class GameController {
             }
 
             // Check if the game is active
-            if (!game.isActive()) {
+            if (!game.isActive() && game.getWinnerId().isEmpty()) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(new APIResponse<String>(
                                 false,
                                 "",
                                 "Game is not active."));
+            }
+
+            // Check if the game is already completed and won by a player
+            if (!game.isActive() && !game.getWinnerId().isEmpty()) {
+                Player winner = playerService.getWinnerDetailsById(game.getWinnerId());
+                    return ResponseEntity
+                            .status(HttpStatus.BAD_REQUEST)
+                            .body(new APIResponse<String>(
+                                    false,
+                                    "",
+                                    "Game is already completed and won by " + ( winner != null ? winner.getPlayerName() : "N/A")  + "."));
             }
 
             // Check if it's the turn of the current player
@@ -139,25 +152,28 @@ public class GameController {
             }
 
             // Roll dice and update game state
-            diceRollService.rollDice(gameId, playerId);
+//            diceRollService.rollDice(gameId, playerId);
+
+            // Roll dice and update game state, get the winner
+            Player winner = diceRollService.rollDice(gameId, playerId);
 
             // Get the place landed after rolling dice
             String placeLanded = gameService.getPlaceLanded(gameId, playerId);
 
             // Construct response message including place landed information
-//            String responseMessage =
-//                    "Dice rolled successfully. Player : " +
-//                            currentPlayer.getPlayerName() +
-//                            " landed on: " +
-//                            placeLanded;
-
             String currentlyPlayingPlayer = (game.getPlayer1().getId().equals(playerId)) ?
                                     game.getPlayer1().getPlayerName() : game.getPlayer2().getPlayerName();
-            String responseMessage =
-                    "Dice rolled successfully. Player : " +
-                            currentlyPlayingPlayer +
-                            " landed on: " +
-                            placeLanded;
+            String responseMessage ="Dice rolled successfully. Player : " + currentlyPlayingPlayer + " landed on: " + placeLanded;
+
+            // Update API response based on winner
+            if (winner != null) {
+                responseMessage += " The game has ended. " + winner.getPlayerName() + " is the winner!";
+                return ResponseEntity
+                        .ok(new APIResponse<Player>(true, winner, responseMessage));
+            }
+//            else {
+//                responseMessage += "\nIt's a tie at turn 50!";
+//            }
 
             return ResponseEntity
                     .ok(new APIResponse<Game>(true, null, responseMessage));

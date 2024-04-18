@@ -4,17 +4,16 @@ import com.game.app.dao.request.PlaceRequest;
 import com.game.app.dao.response.APIResponse;
 import com.game.app.persistence.model.Game;
 import com.game.app.persistence.model.Place;
+import com.game.app.persistence.model.Player;
 import com.game.app.services.service.PlaceService;
+import com.game.app.services.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -27,10 +26,13 @@ public class PlaceController {
     @Autowired
     PlaceService placeService;
 
+    @Autowired
+    PlayerService playerService;
+
     Logger logger = LoggerFactory.getLogger(PlaceController.class);
 
-    @PostMapping("/add-place")
-    public ResponseEntity<APIResponse<?>> addPlace(@RequestBody PlaceRequest placeRequest) {
+    @PostMapping("/add-place/{playerId}")
+    public ResponseEntity<APIResponse<?>> addPlace(@RequestBody PlaceRequest placeRequest, @PathVariable String playerId) {
         try {
             // Validate place request
             if (placeRequest == null || placeRequest.getPlaceName() == null || placeRequest.getPlaceName().isEmpty()) {
@@ -40,6 +42,17 @@ public class PlaceController {
                                 false,
                                 "",
                                 "Invalid place data."));
+            }
+
+            Player player = playerService.getPlayerById(playerId);
+
+            if (!player.isHost()) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(new APIResponse<String>(
+                                false,
+                                "",
+                                "Player do not have authority to add place."));
             }
 
             // Check if the place already exists
